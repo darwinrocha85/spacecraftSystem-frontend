@@ -55,6 +55,7 @@ export default function SpacecraftTable({
               </th>
             ))}
             <th>Armamento</th>
+            <th>Recinto</th>
             <th className="col-actions">Acciones</th>
           </tr>
         </thead>
@@ -72,6 +73,11 @@ export default function SpacecraftTable({
                 <span className={`armed-badge ${s.isArmed ? 'armed' : 'unarmed'}`}>
                   {s.isArmed ? '⚔ Armada' : '☮ Desarmada'}
                 </span>
+              </td>
+              <td>
+                {s.isMuseum && <span className="venue-badge venue-museum">🏛 Museo</span>}
+                {s.isTheater && <span className="venue-badge venue-theater">🎭 Teatro</span>}
+                {!s.isMuseum && !s.isTheater && <span className="venue-badge venue-none">—</span>}
               </td>
               <td className="col-actions">
                 <button className="btn-icon" onClick={() => onEdit(s)} aria-label={`Editar ${s.name}`}>

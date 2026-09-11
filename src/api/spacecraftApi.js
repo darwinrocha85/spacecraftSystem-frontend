@@ -105,6 +105,33 @@ export const spacecraftApi = {
       throw toFriendlyError(error)
     }
   },
+
+  async getVenues(type) {
+    try {
+      const { data } = await client.get('/spacecrafts/venues', { params: type ? { type } : {} })
+      return data
+    } catch (error) {
+      throw toFriendlyError(error)
+    }
+  },
+
+  async getMuseumSchedule(spacecraftId) {
+    try {
+      const { data } = await client.get('/museum-schedules', { params: { spacecraftId } })
+      return data
+    } catch (error) {
+      throw toFriendlyError(error)
+    }
+  },
+
+  async saveMuseumScheduleDay(payload) {
+    try {
+      const { data } = await client.post('/museum-schedules', payload)
+      return data
+    } catch (error) {
+      throw toFriendlyError(error)
+    }
+  },
 }
 
 export default spacecraftApi

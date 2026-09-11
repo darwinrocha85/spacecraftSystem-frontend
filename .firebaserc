@@ -1,5 +1,7 @@
 {
   "projects": {
-    "default": "REEMPLAZA_CON_TU_FIREBASE_PROJECT_ID"
-  }
+    "staging-spacecraf": "spacecraft-system"
+  },
+  "targets": {},
+  "etags": {}
 }

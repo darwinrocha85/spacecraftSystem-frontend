@@ -300,6 +300,35 @@ body {
   border: 1px solid rgba(74, 222, 128, 0.3);
 }
 
+.venue-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  margin-right: 6px;
+}
+
+.venue-badge.venue-museum {
+  background: rgba(255, 181, 69, 0.14);
+  color: var(--accent-amber);
+  border: 1px solid rgba(255, 181, 69, 0.35);
+}
+
+.venue-badge.venue-theater {
+  background: rgba(255, 110, 199, 0.14);
+  color: var(--accent-pink);
+  border: 1px solid rgba(255, 110, 199, 0.35);
+}
+
+.venue-badge.venue-none {
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  padding: 0;
+}
+
 .btn-icon {
   background: transparent;
   border: 1px solid var(--border-soft);
@@ -408,11 +437,38 @@ body {
 .modal-card {
   width: 100%;
   max-width: 520px;
+  max-height: 88vh;
+  overflow-y: auto;
   background: var(--bg-panel-alt);
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-lg);
   padding: 28px;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+}
+
+.modal-overlay-top {
+  z-index: 15;
+}
+
+.schedule-modal-card {
+  max-width: 680px;
+}
+
+.field.schedule-launcher {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.btn-schedule {
+  padding: 8px 14px;
+  font-size: 0.85rem;
+}
+
+.schedule-hint-top {
+  margin-top: 0;
+  margin-bottom: 18px;
 }
 
 .modal-card h2 {
@@ -507,6 +563,88 @@ body {
   background: #1a0508;
 }
 
+.switch-museum.switch-on {
+  background: linear-gradient(120deg, var(--accent-amber), #ffd88a);
+}
+
+.switch-theater.switch-on {
+  background: linear-gradient(120deg, var(--accent-pink), var(--accent-purple));
+}
+
+.schedule-block {
+  grid-column: 1 / -1;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.schedule-title {
+  margin: 0 0 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.schedule-hint {
+  margin: 8px 0 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.schedule-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(130px, 1fr));
+  gap: 12px;
+}
+
+.schedule-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  position: relative;
+}
+
+.schedule-day {
+  text-align: center;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.schedule-time-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.schedule-time-group span {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.schedule-row input[type='time'] {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  background: var(--bg-panel-alt);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 6px 6px;
+  width: 100%;
+  min-width: 0;
+}
+
+.schedule-row-error {
+  margin-top: 2px;
+  font-size: 0.72rem;
+}
+
 .modal-actions {
   display: flex;
   justify-content: flex-end;
@@ -575,5 +713,9 @@ body {
 
   .modal-card {
     padding: 20px;
+  }
+
+  .schedule-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
