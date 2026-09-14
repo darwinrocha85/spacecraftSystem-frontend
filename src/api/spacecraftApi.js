@@ -190,6 +190,47 @@ export const spacecraftApi = {
       throw toFriendlyError(error)
     }
   },
+
+  // Fase 3 (taller): catálogo de categorías/subtipos de daño, no depende de ninguna nave
+  async getDamageCatalog() {
+    try {
+      const { data } = await client.get('/repairs/damage-catalog')
+      return data
+    } catch (error) {
+      throw toFriendlyError(error)
+    }
+  },
+
+  // Cuántas entradas se cancelarían y cuántos horarios/funciones se cerrarían si se envía
+  // esta nave al taller ahora (para el popup de confirmación antes de enviar)
+  async getRepairImpact(spacecraftId) {
+    try {
+      const { data } = await client.get(`/spacecrafts/${spacecraftId}/repairs/impact`)
+      return data
+    } catch (error) {
+      throw toFriendlyError(error)
+    }
+  },
+
+  // Envía la nave al taller con los daños elegidos: [{ category, subtype }, ...]
+  async sendToTaller(spacecraftId, damages) {
+    try {
+      const { data } = await client.post(`/spacecrafts/${spacecraftId}/repairs`, { damages })
+      return data
+    } catch (error) {
+      throw toFriendlyError(error)
+    }
+  },
+
+  // Historial de reparaciones de una nave (incluye la abierta, si está en el taller)
+  async getRepairHistory(spacecraftId) {
+    try {
+      const { data } = await client.get(`/spacecrafts/${spacecraftId}/repairs`)
+      return data
+    } catch (error) {
+      throw toFriendlyError(error)
+    }
+  },
 }
 
 export default spacecraftApi

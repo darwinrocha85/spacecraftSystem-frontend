@@ -9,6 +9,7 @@ import ConfirmDialog from './components/ConfirmDialog'
 import Toast from './components/Toast'
 import MuseumSalesModal from './components/MuseumSalesModal'
 import TheaterSalesModal from './components/TheaterSalesModal'
+import RepairHistoryModal from './components/RepairHistoryModal'
 import useSpacecrafts from './hooks/useSpacecrafts'
 
 export default function App() {
@@ -28,6 +29,7 @@ export default function App() {
     createSpacecraft,
     updateSpacecraft,
     deleteSpacecraft,
+    refetch,
   } = useSpacecrafts()
 
   const [formOpen, setFormOpen] = useState(false)
@@ -41,6 +43,7 @@ export default function App() {
 
   const [museumSalesTarget, setMuseumSalesTarget] = useState(null)
   const [theaterSalesTarget, setTheaterSalesTarget] = useState(null)
+  const [repairHistoryTarget, setRepairHistoryTarget] = useState(null)
 
   function openCreateForm() {
     setEditingSpacecraft(null)
@@ -75,6 +78,13 @@ export default function App() {
     } finally {
       setSaving(false)
     }
+  }
+
+  async function handleSentToTaller(name) {
+    setFormOpen(false)
+    setEditingSpacecraft(null)
+    setToast({ message: `"${name}" fue enviada al taller.`, type: 'success' })
+    await refetch()
   }
 
   async function handleConfirmDelete() {
@@ -118,6 +128,7 @@ export default function App() {
           onDelete={setDeleteTarget}
           onShowMuseumSales={setMuseumSalesTarget}
           onShowTheaterSales={setTheaterSalesTarget}
+          onShowRepairHistory={setRepairHistoryTarget}
         />
 
         <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
@@ -129,6 +140,7 @@ export default function App() {
         saving={saving}
         onSubmit={handleSubmitForm}
         onCancel={closeForm}
+        onSentToTaller={handleSentToTaller}
       />
 
       <ConfirmDialog
@@ -156,6 +168,12 @@ export default function App() {
         open={Boolean(theaterSalesTarget)}
         spacecraft={theaterSalesTarget}
         onClose={() => setTheaterSalesTarget(null)}
+      />
+
+      <RepairHistoryModal
+        open={Boolean(repairHistoryTarget)}
+        spacecraft={repairHistoryTarget}
+        onClose={() => setRepairHistoryTarget(null)}
       />
     </div>
   )

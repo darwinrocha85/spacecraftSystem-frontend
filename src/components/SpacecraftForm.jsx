@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import MuseumScheduleModal from './MuseumScheduleModal'
 import TheaterEventModal from './TheaterEventModal'
+import SendToTallerModal from './SendToTallerModal'
+import { isOperativa, statusLabel } from '../constants/repairStatus'
 
 const EMPTY_FORM = {
   name: '',
@@ -45,12 +47,14 @@ function validate(form) {
   return errors
 }
 
-export default function SpacecraftForm({ open, spacecraft, saving, onSubmit, onCancel }) {
+export default function SpacecraftForm({ open, spacecraft, saving, onSubmit, onCancel, onSentToTaller }) {
   const [form, setForm] = useState(EMPTY_FORM)
   const [errors, setErrors] = useState({})
   const [scheduleOpen, setScheduleOpen] = useState(false)
   const [theaterEventsOpen, setTheaterEventsOpen] = useState(false)
+  const [tallerOpen, setTallerOpen] = useState(false)
   const isEditing = Boolean(spacecraft)
+  const operativa = isOperativa(spacecraft?.status)
 
   useEffect(() => {
     if (open) {
@@ -58,6 +62,7 @@ export default function SpacecraftForm({ open, spacecraft, saving, onSubmit, onC
       setErrors({})
       setScheduleOpen(false)
       setTheaterEventsOpen(false)
+      setTallerOpen(false)
     }
   }, [open, spacecraft])
 
@@ -237,6 +242,21 @@ export default function SpacecraftForm({ open, spacecraft, saving, onSubmit, onC
               )}
             </div>
           )}
+
+          {isEditing && (
+            <div className="field schedule-launcher">
+              <span>Taller de reparación</span>
+              {operativa ? (
+                <button type="button" className="btn btn-ghost btn-schedule" onClick={() => setTallerOpen(true)}>
+                  🔧 Enviar a taller
+                </button>
+              ) : (
+                <span className={`status-badge status-${(spacecraft.status || 'OPERATIVA').toLowerCase()}`}>
+                  {statusLabel(spacecraft.status)} — se gestiona desde la app de taller
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="modal-actions">
@@ -262,6 +282,18 @@ export default function SpacecraftForm({ open, spacecraft, saving, onSubmit, onC
           open={theaterEventsOpen}
           spacecraft={spacecraft}
           onClose={() => setTheaterEventsOpen(false)}
+        />
+      )}
+
+      {isEditing && (
+        <SendToTallerModal
+          open={tallerOpen}
+          spacecraft={spacecraft}
+          onClose={() => setTallerOpen(false)}
+          onSent={(name) => {
+            setTallerOpen(false)
+            onSentToTaller?.(name)
+          }}
         />
       )}
     </div>

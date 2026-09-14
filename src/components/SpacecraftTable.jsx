@@ -1,3 +1,5 @@
+import { statusLabel } from '../constants/repairStatus'
+
 const SORTABLE_COLUMNS = [
   { field: 'name', label: 'Nombre' },
   { field: 'franchise', label: 'Franquicia' },
@@ -21,6 +23,7 @@ export default function SpacecraftTable({
   onDelete,
   onShowMuseumSales,
   onShowTheaterSales,
+  onShowRepairHistory,
 }) {
   if (loading) {
     return (
@@ -58,6 +61,7 @@ export default function SpacecraftTable({
             ))}
             <th>Armamento</th>
             <th>Recinto</th>
+            <th>Taller</th>
             <th className="col-actions">Acciones</th>
           </tr>
         </thead>
@@ -100,6 +104,16 @@ export default function SpacecraftTable({
                   )}
                   {!s.isMuseum && !s.isTheater && <span className="venue-badge venue-none">—</span>}
                 </div>
+              </td>
+              <td>
+                <button
+                  type="button"
+                  className={`status-badge status-badge-clickable status-${(s.status || 'OPERATIVA').toLowerCase()}`}
+                  onClick={() => onShowRepairHistory(s)}
+                  title="Ver historial de taller"
+                >
+                  {statusLabel(s.status)}
+                </button>
               </td>
               <td className="col-actions">
                 <button className="btn-icon" onClick={() => onEdit(s)} aria-label={`Editar ${s.name}`}>
