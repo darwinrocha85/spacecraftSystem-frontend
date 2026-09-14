@@ -19,6 +19,8 @@ export default function SpacecraftTable({
   onSort,
   onEdit,
   onDelete,
+  onShowMuseumSales,
+  onShowTheaterSales,
 }) {
   if (loading) {
     return (
@@ -75,9 +77,29 @@ export default function SpacecraftTable({
                 </span>
               </td>
               <td>
-                {s.isMuseum && <span className="venue-badge venue-museum">🏛 Museo</span>}
-                {s.isTheater && <span className="venue-badge venue-theater">🎭 Teatro</span>}
-                {!s.isMuseum && !s.isTheater && <span className="venue-badge venue-none">—</span>}
+                <div className="venue-badge-group">
+                  {s.isMuseum && (
+                    <button
+                      type="button"
+                      className="venue-badge venue-museum venue-badge-clickable"
+                      onClick={() => onShowMuseumSales(s)}
+                      title="Ver entradas vendidas de museo"
+                    >
+                      🏛 Museo
+                    </button>
+                  )}
+                  {s.isTheater && (
+                    <button
+                      type="button"
+                      className="venue-badge venue-theater venue-badge-clickable"
+                      onClick={() => onShowTheaterSales(s)}
+                      title="Ver entradas vendidas de teatro"
+                    >
+                      🎭 Teatro
+                    </button>
+                  )}
+                  {!s.isMuseum && !s.isTheater && <span className="venue-badge venue-none">—</span>}
+                </div>
               </td>
               <td className="col-actions">
                 <button className="btn-icon" onClick={() => onEdit(s)} aria-label={`Editar ${s.name}`}>

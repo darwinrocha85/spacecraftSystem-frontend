@@ -1,8 +1,13 @@
 import axios from 'axios'
 
-// Base URL configurable por variable de entorno (ver .env.example).
-// Por defecto apunta al backend spacecraftSystem corriendo local.
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
+// Base URL configurable por variable de entorno (ver .env.example), pero el propio
+// modo de Vite ya distingue el entorno sin depender de que exista un .env: en `npm run dev`
+// (import.meta.env.DEV) usa el backend local, en `npm run build` (producción) usa Render.
+// Un VITE_API_URL explícito (.env.local, variable de entorno en CI, etc.) siempre gana.
+const DEFAULT_API_URL = import.meta.env.DEV
+  ? 'http://localhost:8080/api'
+  : 'https://spacecraftsystem.onrender.com/api'
+const API_URL = import.meta.env.VITE_API_URL || DEFAULT_API_URL
 
 const client = axios.create({
   baseURL: API_URL,
@@ -127,6 +132,59 @@ export const spacecraftApi = {
   async saveMuseumScheduleDay(payload) {
     try {
       const { data } = await client.post('/museum-schedules', payload)
+      return data
+    } catch (error) {
+      throw toFriendlyError(error)
+    }
+  },
+
+  async listTheaterEvents(spacecraftId) {
+    try {
+      const { data } = await client.get('/theater-events', { params: { spacecraftId } })
+      return data
+    } catch (error) {
+      throw toFriendlyError(error)
+    }
+  },
+
+  async createTheaterEvent(payload) {
+    try {
+      const { data } = await client.post('/theater-events', payload)
+      return data
+    } catch (error) {
+      throw toFriendlyError(error)
+    }
+  },
+
+  async updateTheaterEvent(id, payload) {
+    try {
+      const { data } = await client.put(`/theater-events/${id}`, payload)
+      return data
+    } catch (error) {
+      throw toFriendlyError(error)
+    }
+  },
+
+  async deleteTheaterEvent(id) {
+    try {
+      await client.delete(`/theater-events/${id}`)
+    } catch (error) {
+      throw toFriendlyError(error)
+    }
+  },
+
+  async getMuseumAvailability(spacecraftId, date) {
+    try {
+      const { data } = await client.get(`/museum/${spacecraftId}/availability`, { params: { date } })
+      return data
+    } catch (error) {
+      throw toFriendlyError(error)
+    }
+  },
+
+  async getTheaterEventSales(eventId) {
+    try {
+      const { data } = await client.get(`/theater-events/${eventId}/sales`)
       return data
     } catch (error) {
       throw toFriendlyError(error)

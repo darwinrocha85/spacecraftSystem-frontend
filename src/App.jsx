@@ -7,6 +7,8 @@ import Pagination from './components/Pagination'
 import SpacecraftForm from './components/SpacecraftForm'
 import ConfirmDialog from './components/ConfirmDialog'
 import Toast from './components/Toast'
+import MuseumSalesModal from './components/MuseumSalesModal'
+import TheaterSalesModal from './components/TheaterSalesModal'
 import useSpacecrafts from './hooks/useSpacecrafts'
 
 export default function App() {
@@ -36,6 +38,9 @@ export default function App() {
   const [deleting, setDeleting] = useState(false)
 
   const [toast, setToast] = useState(null) // { message, type }
+
+  const [museumSalesTarget, setMuseumSalesTarget] = useState(null)
+  const [theaterSalesTarget, setTheaterSalesTarget] = useState(null)
 
   function openCreateForm() {
     setEditingSpacecraft(null)
@@ -111,6 +116,8 @@ export default function App() {
           onSort={toggleSort}
           onEdit={openEditForm}
           onDelete={setDeleteTarget}
+          onShowMuseumSales={setMuseumSalesTarget}
+          onShowTheaterSales={setTheaterSalesTarget}
         />
 
         <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
@@ -138,6 +145,18 @@ export default function App() {
       />
 
       <Toast message={toast?.message} type={toast?.type} onClose={() => setToast(null)} />
+
+      <MuseumSalesModal
+        open={Boolean(museumSalesTarget)}
+        spacecraft={museumSalesTarget}
+        onClose={() => setMuseumSalesTarget(null)}
+      />
+
+      <TheaterSalesModal
+        open={Boolean(theaterSalesTarget)}
+        spacecraft={theaterSalesTarget}
+        onClose={() => setTheaterSalesTarget(null)}
+      />
     </div>
   )
 }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import MuseumScheduleModal from './MuseumScheduleModal'
+import TheaterEventModal from './TheaterEventModal'
 
 const EMPTY_FORM = {
   name: '',
@@ -48,6 +49,7 @@ export default function SpacecraftForm({ open, spacecraft, saving, onSubmit, onC
   const [form, setForm] = useState(EMPTY_FORM)
   const [errors, setErrors] = useState({})
   const [scheduleOpen, setScheduleOpen] = useState(false)
+  const [theaterEventsOpen, setTheaterEventsOpen] = useState(false)
   const isEditing = Boolean(spacecraft)
 
   useEffect(() => {
@@ -55,6 +57,7 @@ export default function SpacecraftForm({ open, spacecraft, saving, onSubmit, onC
       setForm(toFormState(spacecraft))
       setErrors({})
       setScheduleOpen(false)
+      setTheaterEventsOpen(false)
     }
   }, [open, spacecraft])
 
@@ -217,6 +220,23 @@ export default function SpacecraftForm({ open, spacecraft, saving, onSubmit, onC
               )}
             </div>
           )}
+
+          {form.isTheater && (
+            <div className="field schedule-launcher">
+              <span>Funciones de teatro</span>
+              {isEditing ? (
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-schedule"
+                  onClick={() => setTheaterEventsOpen(true)}
+                >
+                  🎭 Configurar funciones
+                </button>
+              ) : (
+                <p className="schedule-hint">Podrás configurarlas después de registrar la nave.</p>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="modal-actions">
@@ -234,6 +254,14 @@ export default function SpacecraftForm({ open, spacecraft, saving, onSubmit, onC
           open={scheduleOpen}
           spacecraft={spacecraft}
           onClose={() => setScheduleOpen(false)}
+        />
+      )}
+
+      {isEditing && (
+        <TheaterEventModal
+          open={theaterEventsOpen}
+          spacecraft={spacecraft}
+          onClose={() => setTheaterEventsOpen(false)}
         />
       )}
     </div>
