@@ -14,6 +14,7 @@ const EMPTY_FORM = {
   isMuseum: false,
   isTheater: false,
   museumCapacity: '',
+  ticketPrice: '',
 }
 
 function toFormState(spacecraft) {
@@ -28,6 +29,7 @@ function toFormState(spacecraft) {
     isMuseum: Boolean(spacecraft.isMuseum),
     isTheater: Boolean(spacecraft.isTheater),
     museumCapacity: spacecraft.museumCapacity ?? '',
+    ticketPrice: spacecraft.ticketPrice ?? '',
   }
 }
 
@@ -43,6 +45,9 @@ function validate(form) {
   }
   if (form.isMuseum && (form.museumCapacity === '' || Number(form.museumCapacity) <= 0)) {
     errors.museumCapacity = 'Obligatoria y mayor a 0 si la nave es museo.'
+  }
+  if (form.ticketPrice !== '' && Number(form.ticketPrice) < 0) {
+    errors.ticketPrice = 'No puede ser negativo.'
   }
   return errors
 }
@@ -88,6 +93,7 @@ export default function SpacecraftForm({ open, spacecraft, saving, onSubmit, onC
       isMuseum: form.isMuseum,
       isTheater: form.isTheater,
       museumCapacity: form.isMuseum && form.museumCapacity !== '' ? Number(form.museumCapacity) : null,
+      ticketPrice: form.ticketPrice === '' ? null : Number(form.ticketPrice),
     })
   }
 
@@ -224,6 +230,21 @@ export default function SpacecraftForm({ open, spacecraft, saving, onSubmit, onC
                 <p className="schedule-hint">Podrás configurarlo después de registrar la nave.</p>
               )}
             </div>
+          )}
+
+          {(form.isMuseum || form.isTheater) && (
+            <label className="field">
+              <span>Precio de la entrada (BankIn)</span>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={form.ticketPrice}
+                onChange={(e) => update('ticketPrice', e.target.value)}
+                placeholder="Ej. 25.00 (si se deja vacío se usa $25.00 por defecto)"
+              />
+              {errors.ticketPrice && <span className="field-error">{errors.ticketPrice}</span>}
+            </label>
           )}
 
           {form.isTheater && (
