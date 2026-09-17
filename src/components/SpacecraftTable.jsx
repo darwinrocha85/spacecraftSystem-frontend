@@ -24,6 +24,7 @@ export default function SpacecraftTable({
   onShowMuseumSales,
   onShowTheaterSales,
   onShowRepairHistory,
+  onShowDashboard,
 }) {
   if (loading) {
     return (
@@ -116,6 +117,14 @@ export default function SpacecraftTable({
                 </button>
               </td>
               <td className="col-actions">
+                <button
+                  className="btn-icon"
+                  onClick={() => onShowDashboard(s)}
+                  aria-label={`Ver dashboard de ${s.name}`}
+                  title="Ver dashboard de esta nave"
+                >
+                  📊
+                </button>
                 <button className="btn-icon" onClick={() => onEdit(s)} aria-label={`Editar ${s.name}`}>
                   ✎
                 </button>

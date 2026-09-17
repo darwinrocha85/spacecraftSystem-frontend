@@ -10,9 +10,12 @@ import Toast from './components/Toast'
 import MuseumSalesModal from './components/MuseumSalesModal'
 import TheaterSalesModal from './components/TheaterSalesModal'
 import RepairHistoryModal from './components/RepairHistoryModal'
+import DashboardOverview from './components/DashboardOverview'
+import SpacecraftDashboardModal from './components/SpacecraftDashboardModal'
 import useSpacecrafts from './hooks/useSpacecrafts'
 
 export default function App() {
+  const [view, setView] = useState('fleet') // 'fleet' | 'dashboard'
   const {
     items,
     page,
@@ -44,6 +47,7 @@ export default function App() {
   const [museumSalesTarget, setMuseumSalesTarget] = useState(null)
   const [theaterSalesTarget, setTheaterSalesTarget] = useState(null)
   const [repairHistoryTarget, setRepairHistoryTarget] = useState(null)
+  const [dashboardTarget, setDashboardTarget] = useState(null)
 
   function openCreateForm() {
     setEditingSpacecraft(null)
@@ -106,32 +110,39 @@ export default function App() {
       <Starfield />
 
       <main className="app-content">
-        <Header totalElements={totalElements} onNewSpacecraft={openCreateForm} />
+        <Header totalElements={totalElements} view={view} onViewChange={setView} onNewSpacecraft={openCreateForm} />
 
-        <div className="toolbar">
-          <SearchBar value={searchTerm} onSearch={search} />
-        </div>
+        {view === 'dashboard' && <DashboardOverview />}
 
-        {error && (
-          <div className="inline-error" role="alert">
-            ⚠ {error}
-          </div>
+        {view === 'fleet' && (
+          <>
+            <div className="toolbar">
+              <SearchBar value={searchTerm} onSearch={search} />
+            </div>
+
+            {error && (
+              <div className="inline-error" role="alert">
+                ⚠ {error}
+              </div>
+            )}
+
+            <SpacecraftTable
+              items={items}
+              loading={loading}
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSort={toggleSort}
+              onEdit={openEditForm}
+              onDelete={setDeleteTarget}
+              onShowMuseumSales={setMuseumSalesTarget}
+              onShowTheaterSales={setTheaterSalesTarget}
+              onShowRepairHistory={setRepairHistoryTarget}
+              onShowDashboard={setDashboardTarget}
+            />
+
+            <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+          </>
         )}
-
-        <SpacecraftTable
-          items={items}
-          loading={loading}
-          sortBy={sortBy}
-          sortDirection={sortDirection}
-          onSort={toggleSort}
-          onEdit={openEditForm}
-          onDelete={setDeleteTarget}
-          onShowMuseumSales={setMuseumSalesTarget}
-          onShowTheaterSales={setTheaterSalesTarget}
-          onShowRepairHistory={setRepairHistoryTarget}
-        />
-
-        <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
       </main>
 
       <SpacecraftForm
@@ -174,6 +185,12 @@ export default function App() {
         open={Boolean(repairHistoryTarget)}
         spacecraft={repairHistoryTarget}
         onClose={() => setRepairHistoryTarget(null)}
+      />
+
+      <SpacecraftDashboardModal
+        open={Boolean(dashboardTarget)}
+        spacecraft={dashboardTarget}
+        onClose={() => setDashboardTarget(null)}
       />
     </div>
   )

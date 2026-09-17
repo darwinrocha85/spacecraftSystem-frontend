@@ -95,6 +95,265 @@ body {
   font-size: 0.85rem;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+/* Fase 6: toggle Flota / Dashboard */
+.view-toggle {
+  display: flex;
+  gap: 6px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 4px;
+}
+
+.view-toggle-button {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.view-toggle-button:hover {
+  color: var(--text-primary);
+}
+
+.view-toggle-active {
+  background: linear-gradient(120deg, var(--accent-cyan), var(--accent-purple));
+  color: #0a0d1f;
+  font-weight: 700;
+}
+
+/* Fase 6: dashboard */
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.kpi-grid-compact {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin-bottom: 18px;
+}
+
+.kpi-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+}
+
+.kpi-tile-accent {
+  border-color: rgba(125, 249, 255, 0.35);
+  background: rgba(125, 249, 255, 0.06);
+}
+
+.kpi-value {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.kpi-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.kpi-sub {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.dashboard-section h2 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  margin: 0 0 14px;
+  color: var(--accent-cyan);
+}
+
+.fleet-status-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fleet-status-chip-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+}
+
+.fleet-status-count {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.dashboard-total-hint {
+  margin: 10px 0 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.top-ships-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.top-ship-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+}
+
+.top-ship-rank {
+  font-family: var(--font-display);
+  color: var(--accent-amber);
+  font-weight: 700;
+  width: 28px;
+}
+
+.top-ship-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.top-ship-name {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.top-ship-revenue {
+  font-weight: 700;
+  color: var(--success);
+}
+
+.dashboard-modal-card {
+  max-width: 620px;
+}
+
+.dashboard-repairs-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+/* Fase 6 (fix): tile de KPI clickeable ("Entradas activas" abre el detalle de tickets) */
+.kpi-tile-clickable {
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  width: 100%;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.kpi-tile-clickable:hover {
+  border-color: rgba(125, 249, 255, 0.45);
+  background: rgba(125, 249, 255, 0.06);
+}
+
+.kpi-tile-clickable:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 2px;
+}
+
+.kpi-hint {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--accent-cyan);
+  margin-top: 2px;
+}
+
+/* Fase 6 (fix): detalle de entradas activas (fecha/hora + comprador/código/costo al expandir) */
+.ticket-detail-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ticket-detail-row {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+}
+
+.ticket-detail-summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.ticket-detail-ship {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+}
+
+.ticket-detail-date {
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.ticket-detail-time,
+.ticket-detail-qty {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.ticket-detail-summary .btn-sm {
+  margin-left: auto;
+}
+
+.ticket-detail-expanded {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.ticket-detail-expanded strong {
+  color: var(--text-primary);
+}
+
 /* Buttons */
 .btn {
   font-family: var(--font-body);
@@ -137,6 +396,11 @@ body {
 
 .btn-ghost:hover:not(:disabled) {
   border-color: var(--accent-cyan);
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.78rem;
 }
 
 .btn-danger {
@@ -200,6 +464,33 @@ body {
   border-radius: var(--radius-lg);
   overflow-x: auto;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(167, 139, 250, 0.5) transparent;
+}
+
+/* Scrollbar delgada y con el mismo tono morado del resto de la UI, en vez del scrollbar nativo
+   (gris, con flechas) que desentonaba con el diseño oscuro. */
+.table-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(167, 139, 250, 0.5);
+  border-radius: 999px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-purple);
+}
+
+.table-wrapper::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .spacecraft-table {

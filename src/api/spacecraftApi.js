@@ -231,6 +231,40 @@ export const spacecraftApi = {
       throw toFriendlyError(error)
     }
   },
+
+  // Fase 6: KPIs generales de toda la flota (ingresos, tickets, ocupación de hoy, estado de
+  // flota, top naves por ingresos)
+  async getDashboardOverview() {
+    try {
+      const { data } = await client.get('/dashboard/overview')
+      return data
+    } catch (error) {
+      throw toFriendlyError(error)
+    }
+  },
+
+  // Fase 6: mismos KPIs pero acotados a una nave puntual, más su historial de reparaciones
+  async getSpacecraftDashboard(spacecraftId) {
+    try {
+      const { data } = await client.get(`/dashboard/spacecrafts/${spacecraftId}`)
+      return data
+    } catch (error) {
+      throw toFriendlyError(error)
+    }
+  },
+
+  // Fase 6 (fix): detalle de entradas activas (fecha/hora, comprador, código, costo). Sin
+  // spacecraftId trae toda la flota; con spacecraftId, solo esa nave.
+  async getDashboardTickets(spacecraftId) {
+    try {
+      const { data } = await client.get('/dashboard/tickets', {
+        params: spacecraftId ? { spacecraftId } : {},
+      })
+      return data
+    } catch (error) {
+      throw toFriendlyError(error)
+    }
+  },
 }
 
 export default spacecraftApi
