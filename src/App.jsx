@@ -10,6 +10,7 @@ import Toast from './components/Toast'
 import MuseumSalesModal from './components/MuseumSalesModal'
 import TheaterSalesModal from './components/TheaterSalesModal'
 import RepairHistoryModal from './components/RepairHistoryModal'
+import WorkshopStatusModal from './components/WorkshopStatusModal'
 import DashboardOverview from './components/DashboardOverview'
 import SpacecraftDashboardModal from './components/SpacecraftDashboardModal'
 import useSpacecrafts from './hooks/useSpacecrafts'
@@ -47,6 +48,7 @@ export default function App() {
   const [museumSalesTarget, setMuseumSalesTarget] = useState(null)
   const [theaterSalesTarget, setTheaterSalesTarget] = useState(null)
   const [repairHistoryTarget, setRepairHistoryTarget] = useState(null)
+  const [workshopStatusTarget, setWorkshopStatusTarget] = useState(null)
   const [dashboardTarget, setDashboardTarget] = useState(null)
 
   function openCreateForm() {
@@ -88,6 +90,13 @@ export default function App() {
     setFormOpen(false)
     setEditingSpacecraft(null)
     setToast({ message: `"${name}" fue enviada al taller.`, type: 'success' })
+    await refetch()
+  }
+
+  async function handleReceivedFromTaller(name) {
+    setFormOpen(false)
+    setEditingSpacecraft(null)
+    setToast({ message: `"${name}" volvió del taller y ya está operativa.`, type: 'success' })
     await refetch()
   }
 
@@ -137,6 +146,7 @@ export default function App() {
               onShowMuseumSales={setMuseumSalesTarget}
               onShowTheaterSales={setTheaterSalesTarget}
               onShowRepairHistory={setRepairHistoryTarget}
+              onShowWorkshopStatus={setWorkshopStatusTarget}
               onShowDashboard={setDashboardTarget}
             />
 
@@ -185,6 +195,13 @@ export default function App() {
         open={Boolean(repairHistoryTarget)}
         spacecraft={repairHistoryTarget}
         onClose={() => setRepairHistoryTarget(null)}
+      />
+
+      <WorkshopStatusModal
+        open={Boolean(workshopStatusTarget)}
+        spacecraft={workshopStatusTarget}
+        onClose={() => setWorkshopStatusTarget(null)}
+        onReceived={handleReceivedFromTaller}
       />
 
       <SpacecraftDashboardModal

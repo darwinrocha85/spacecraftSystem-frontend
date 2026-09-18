@@ -14,19 +14,32 @@ const client = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
-// Normaliza los errores de axios/backend a un mensaje legible,
-// reutilizando el "message" que devuelve GlobalExceptionHandler cuando existe.
-function toFriendlyError(error) {
+// Fase 1 (extracción del taller a backend Python): el detalle fino de la reparación (estado,
+// presupuestos, stock de repuestos) ahora vive en spacecraft-taller-backend, un servicio propio
+// que este panel admin consulta directo (el dueño de la flota aprueba/rechaza presupuestos y
+// recibe la nave sin pasar por Java para eso).
+const DEFAULT_TALLER_API_URL = import.meta.env.DEV
+  ? 'http://localhost:8001/api'
+  : 'https://spacecraft-taller-backend.onrender.com/api'
+const TALLER_API_URL = import.meta.env.VITE_TALLER_API_URL || DEFAULT_TALLER_API_URL
+
+const tallerClient = axios.create({
+  baseURL: TALLER_API_URL,
+  headers: { 'Content-Type': 'application/json' },
+})
+
+// Normaliza los errores de axios/backend a un mensaje legible. Java devuelve {"message": ...}
+// (GlobalExceptionHandler), el backend de taller (Python/FastAPI) devuelve {"detail": ...} -
+// se soportan ambos formatos según cuál backend haya respondido.
+function toFriendlyError(error, apiUrl = API_URL) {
   if (error.response) {
-    const backendMessage = error.response.data?.message
+    const backendMessage = error.response.data?.message || error.response.data?.detail
     const err = new Error(backendMessage || `Error ${error.response.status} del servidor`)
     err.status = error.response.status
     return err
   }
   if (error.request) {
-    return new Error(
-      'No se pudo contactar al backend. ¿Está corriendo en ' + API_URL + '?'
-    )
+    return new Error('No se pudo contactar al backend. ¿Está corriendo en ' + apiUrl + '?')
   }
   return error
 }
@@ -191,18 +204,21 @@ export const spacecraftApi = {
     }
   },
 
-  // Fase 3 (taller): catálogo de categorías/subtipos de daño, no depende de ninguna nave
+  // --- Taller: catálogo y envío (spacecraftSystem sigue orquestando el envío) ---
+
+  // Fase 1: el catálogo de daños ahora vive en el backend de taller (Python), no en Java.
   async getDamageCatalog() {
     try {
-      const { data } = await client.get('/repairs/damage-catalog')
+      const { data } = await tallerClient.get('/catalog/damages')
       return data
     } catch (error) {
-      throw toFriendlyError(error)
+      throw toFriendlyError(error, TALLER_API_URL)
     }
   },
 
   // Cuántas entradas se cancelarían y cuántos horarios/funciones se cerrarían si se envía
-  // esta nave al taller ahora (para el popup de confirmación antes de enviar)
+  // esta nave al taller ahora (para el popup de confirmación antes de enviar) — sigue en Java,
+  // es solo una vista previa sobre datos que Java ya tiene (entradas/horarios propios).
   async getRepairImpact(spacecraftId) {
     try {
       const { data } = await client.get(`/spacecrafts/${spacecraftId}/repairs/impact`)
@@ -212,7 +228,9 @@ export const spacecraftApi = {
     }
   },
 
-  // Envía la nave al taller con los daños elegidos: [{ category, subtype }, ...]
+  // Envía la nave al taller con los daños elegidos: [{ category, subtype }, ...]. Java cancela
+  // entradas/horarios y avisa al backend de taller para que abra la reparación (queda "ENVIADA"
+  // hasta que el taller confirme la recepción).
   async sendToTaller(spacecraftId, damages) {
     try {
       const { data } = await client.post(`/spacecrafts/${spacecraftId}/repairs`, { damages })
@@ -222,13 +240,88 @@ export const spacecraftApi = {
     }
   },
 
-  // Historial de reparaciones de una nave (incluye la abierta, si está en el taller)
-  async getRepairHistory(spacecraftId) {
+  // El dueño de la flota confirma que retiró la nave del taller: Java vuelve a marcarla
+  // OPERATIVA. Idempotente. Se llama después de receiveShipFromTaller() (que cierra el lado
+  // del taller) — ver ReceiveShipButton.
+  async confirmShipOperational(spacecraftId) {
     try {
-      const { data } = await client.get(`/spacecrafts/${spacecraftId}/repairs`)
+      const { data } = await client.post(`/spacecrafts/${spacecraftId}/repairs/current/receive`)
       return data
     } catch (error) {
       throw toFriendlyError(error)
+    }
+  },
+
+  // --- Taller: estado detallado, presupuestos y recepción (todo esto vive en Python) ---
+
+  // Historial completo de reparaciones de una nave (incluye la activa, si está en el taller).
+  async getRepairsForSpacecraft(spacecraftId) {
+    try {
+      const { data } = await tallerClient.get('/repairs', { params: { spacecraftId } })
+      return data
+    } catch (error) {
+      throw toFriendlyError(error, TALLER_API_URL)
+    }
+  },
+
+  // Reparación activa de una nave (estado != ENTREGADA), o null si no hay ninguna abierta.
+  async getActiveRepair(spacecraftId) {
+    try {
+      const { data } = await tallerClient.get('/repairs/active', { params: { spacecraftId } })
+      return data
+    } catch (error) {
+      if (error.response?.status === 404) return null
+      throw toFriendlyError(error, TALLER_API_URL)
+    }
+  },
+
+  async getRepairDetail(repairId) {
+    try {
+      const { data } = await tallerClient.get(`/repairs/${repairId}`)
+      return data
+    } catch (error) {
+      throw toFriendlyError(error, TALLER_API_URL)
+    }
+  },
+
+  async getBudgets(repairId) {
+    try {
+      const { data } = await tallerClient.get(`/repairs/${repairId}/budgets`)
+      return data
+    } catch (error) {
+      throw toFriendlyError(error, TALLER_API_URL)
+    }
+  },
+
+  // Aprueba un presupuesto: el backend de taller cobra directo a BankIn con esta tarjeta.
+  async approveBudget(repairId, budgetId, cardId) {
+    try {
+      const { data } = await tallerClient.post(`/repairs/${repairId}/budgets/${budgetId}/approve`, {
+        cardId,
+      })
+      return data
+    } catch (error) {
+      throw toFriendlyError(error, TALLER_API_URL)
+    }
+  },
+
+  async rejectBudget(repairId, budgetId) {
+    try {
+      const { data } = await tallerClient.post(`/repairs/${repairId}/budgets/${budgetId}/reject`)
+      return data
+    } catch (error) {
+      throw toFriendlyError(error, TALLER_API_URL)
+    }
+  },
+
+  // Cierra el lado del taller (Python): reparación → ENTREGADA. Idempotente. Se llama antes de
+  // confirmShipOperational() — ver ReceiveShipButton.
+  async receiveShipFromTaller(repairId) {
+    try {
+      const { data } = await tallerClient.post(`/repairs/${repairId}/receive`)
+      return data
+    } catch (error) {
+      throw toFriendlyError(error, TALLER_API_URL)
     }
   },
 

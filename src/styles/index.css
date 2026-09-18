@@ -52,7 +52,7 @@ body {
 .app-content {
   position: relative;
   z-index: 1;
-  max-width: 1100px;
+  max-width: 1350px;
   margin: 0 auto;
   padding: 32px 20px 64px;
 }
@@ -496,24 +496,23 @@ body {
 .spacecraft-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 720px;
+  min-width: 0;
 }
 
 .spacecraft-table th {
   text-align: left;
-  padding: 14px 16px;
-  font-size: 0.78rem;
+  padding: 12px 10px;
+  font-size: 0.76rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--text-muted);
   border-bottom: 1px solid var(--border-soft);
-  white-space: nowrap;
 }
 
 .spacecraft-table td {
-  padding: 14px 16px;
+  padding: 12px 10px;
   border-bottom: 1px solid rgba(140, 160, 255, 0.08);
-  font-size: 0.92rem;
+  font-size: 0.88rem;
 }
 
 .spacecraft-table tbody tr:hover {
@@ -1219,10 +1218,23 @@ body {
   border-color: rgba(74, 222, 128, 0.3);
 }
 
-.status-entro_a_taller {
+.status-en_taller {
   background: rgba(255, 181, 69, 0.14);
   color: var(--accent-amber);
   border-color: rgba(255, 181, 69, 0.35);
+}
+
+/* Fase 1: estados detallados del flujo de reparación (backend de taller en Python) */
+.status-enviada {
+  background: rgba(255, 181, 69, 0.14);
+  color: var(--accent-amber);
+  border-color: rgba(255, 181, 69, 0.35);
+}
+
+.status-recibida {
+  background: rgba(140, 160, 255, 0.14);
+  color: #8ca0ff;
+  border-color: rgba(140, 160, 255, 0.35);
 }
 
 .status-en_revision {
@@ -1231,16 +1243,28 @@ body {
   border-color: rgba(125, 249, 255, 0.35);
 }
 
-.status-espera_repuestos {
+.status-en_trabajo {
+  background: rgba(167, 139, 250, 0.15);
+  color: var(--accent-purple);
+  border-color: rgba(167, 139, 250, 0.35);
+}
+
+.status-esperando_aprobacion_presupuesto {
   background: rgba(255, 84, 112, 0.14);
   color: #ff8ba0;
   border-color: rgba(255, 84, 112, 0.35);
 }
 
-.status-en_proceso {
-  background: rgba(167, 139, 250, 0.15);
-  color: var(--accent-purple);
-  border-color: rgba(167, 139, 250, 0.35);
+.status-lista_para_salir {
+  background: rgba(74, 222, 128, 0.12);
+  color: var(--success);
+  border-color: rgba(74, 222, 128, 0.3);
+}
+
+.status-entregada {
+  background: rgba(140, 160, 255, 0.08);
+  color: var(--text-muted);
+  border-color: var(--border-soft);
 }
 
 .impact-warning {
@@ -1333,6 +1357,74 @@ body {
   padding-left: 18px;
   font-size: 0.76rem;
   color: var(--text-muted);
+}
+
+/* Fase 1: panel de estado del taller embebido en el formulario de edición (reemplaza el badge
+   estático de "se gestiona desde la app de taller") */
+.repair-status-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.receive-ship-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Fase 3: presupuesto del taller (líneas de repuestos + total) */
+.budget-parts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 280px;
+  overflow-y: auto;
+  margin-bottom: 14px;
+}
+
+.budget-part-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--bg-panel);
+}
+
+.budget-part-name {
+  font-size: 0.88rem;
+  color: var(--text-primary);
+}
+
+.budget-part-price {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.budget-total {
+  margin: 0 0 6px;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  text-align: right;
+}
+
+.budget-total strong {
+  color: var(--accent-cyan);
+}
+
+.col-optional {
+  /* visibles en desktop ancho, se ocultan en 1100px para evitar scroll */
+}
+
+@media (max-width: 1100px) {
+  .col-optional {
+    display: none;
+  }
 }
 
 /* Responsive */

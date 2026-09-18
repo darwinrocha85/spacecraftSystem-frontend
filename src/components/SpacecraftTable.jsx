@@ -1,4 +1,4 @@
-import { statusLabel } from '../constants/repairStatus'
+import { isOperativa, statusLabel } from '../constants/repairStatus'
 
 const SORTABLE_COLUMNS = [
   { field: 'name', label: 'Nombre' },
@@ -24,6 +24,7 @@ export default function SpacecraftTable({
   onShowMuseumSales,
   onShowTheaterSales,
   onShowRepairHistory,
+  onShowWorkshopStatus,
   onShowDashboard,
 }) {
   if (loading) {
@@ -50,7 +51,10 @@ export default function SpacecraftTable({
         <thead>
           <tr>
             {SORTABLE_COLUMNS.map((col) => (
-              <th key={col.field}>
+              <th
+                key={col.field}
+                className={['spacecraftType', 'crewCapacity', 'speed'].includes(col.field) ? 'col-optional' : ''}
+              >
                 <button
                   type="button"
                   className="sort-button"
@@ -60,9 +64,9 @@ export default function SpacecraftTable({
                 </button>
               </th>
             ))}
-            <th>Armamento</th>
+            <th className="col-optional">Armamento</th>
             <th>Recinto</th>
-            <th>Taller</th>
+            <th>Estado</th>
             <th className="col-actions">Acciones</th>
           </tr>
         </thead>
@@ -73,10 +77,10 @@ export default function SpacecraftTable({
               <td>
                 <span className="franchise-badge">{s.franchise}</span>
               </td>
-              <td>{s.spacecraftType || '—'}</td>
-              <td>{s.crewCapacity ?? '—'}</td>
-              <td>{s.speed != null ? `${s.speed}` : '—'}</td>
-              <td>
+              <td className="col-optional">{s.spacecraftType || '—'}</td>
+              <td className="col-optional">{s.crewCapacity ?? '—'}</td>
+              <td className="col-optional">{s.speed != null ? `${s.speed}` : '—'}</td>
+              <td className="col-optional">
                 <span className={`armed-badge ${s.isArmed ? 'armed' : 'unarmed'}`}>
                   {s.isArmed ? '⚔ Armada' : '☮ Desarmada'}
                 </span>
@@ -107,14 +111,25 @@ export default function SpacecraftTable({
                 </div>
               </td>
               <td>
-                <button
-                  type="button"
-                  className={`status-badge status-badge-clickable status-${(s.status || 'OPERATIVA').toLowerCase()}`}
-                  onClick={() => onShowRepairHistory(s)}
-                  title="Ver historial de taller"
-                >
-                  {statusLabel(s.status)}
-                </button>
+                {isOperativa(s.status) ? (
+                  <button
+                    type="button"
+                    className={`status-badge status-badge-clickable status-${(s.status || 'OPERATIVA').toLowerCase()}`}
+                    onClick={() => onShowRepairHistory(s)}
+                    title="Ver historial de taller"
+                  >
+                    {statusLabel(s.status)}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className={`status-badge status-badge-clickable status-${(s.status || 'OPERATIVA').toLowerCase()}`}
+                    onClick={() => onShowWorkshopStatus(s)}
+                    title="Ver estado en el taller"
+                  >
+                    {statusLabel(s.status)}
+                  </button>
+                )}
               </td>
               <td className="col-actions">
                 <button
@@ -125,13 +140,21 @@ export default function SpacecraftTable({
                 >
                   📊
                 </button>
-                <button className="btn-icon" onClick={() => onEdit(s)} aria-label={`Editar ${s.name}`}>
+                <button
+                  className="btn-icon"
+                  onClick={() => onEdit(s)}
+                  aria-label={`Editar ${s.name}`}
+                  disabled={!isOperativa(s.status)}
+                  title={isOperativa(s.status) ? `Editar ${s.name}` : 'No se puede editar: nave en taller'}
+                >
                   ✎
                 </button>
                 <button
                   className="btn-icon btn-icon-danger"
                   onClick={() => onDelete(s)}
                   aria-label={`Eliminar ${s.name}`}
+                  disabled={!isOperativa(s.status)}
+                  title={isOperativa(s.status) ? `Eliminar ${s.name}` : 'No se puede eliminar: nave en taller'}
                 >
                   🗑
                 </button>

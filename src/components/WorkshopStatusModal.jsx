@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import spacecraftApi from '../api/spacecraftApi'
+import RepairStatusPanel from './RepairStatusPanel'
 import { repairStatusLabel } from '../constants/repairStatus'
 
 function formatDateTime(iso) {
@@ -13,11 +14,7 @@ function formatDateTime(iso) {
   })
 }
 
-// Fase 1: el historial ahora viene del backend de taller (Python), no de spacecraftSystem - se
-// muestra el detalle fino de cada visita (daños, cuántos horarios/funciones cerró esa visita, y
-// en qué estado quedó). La cantidad de entradas canceladas queda solo en el dashboard de Java
-// (RepairRecord, agregado histórico), no en este detalle por visita.
-export default function RepairHistoryModal({ open, spacecraft, onClose }) {
+export default function WorkshopStatusModal({ open, spacecraft, onClose, onReceived }) {
   const [records, setRecords] = useState([])
   const [loading, setLoading] = useState(false)
   const [notice, setNotice] = useState('')
@@ -39,13 +36,24 @@ export default function RepairHistoryModal({ open, spacecraft, onClose }) {
     <div
       className="modal-overlay modal-overlay-top"
       role="presentation"
-      onClick={(e) => {
-        e.stopPropagation()
-        onClose()
-      }}
+      onClick={onClose}
     >
       <div className="modal-card schedule-modal-card" onClick={(e) => e.stopPropagation()}>
-        <h2>🔧 Historial de taller — {spacecraft?.name}</h2>
+        <h2>Taller — {spacecraft?.name}</h2>
+
+        <div style={{ marginBottom: '18px' }}>
+          <RepairStatusPanel
+            spacecraftId={spacecraft.id}
+            onReceived={() => {
+              onReceived?.(spacecraft.name)
+              onClose()
+            }}
+          />
+        </div>
+
+        <h3 style={{ fontSize: '0.95rem', margin: '14px 0 10px', color: 'var(--text-muted)' }}>
+          Historial de visitas
+        </h3>
 
         {notice && <p className="field-error">{notice}</p>}
         {loading && <p className="schedule-hint">Cargando historial…</p>}
@@ -66,7 +74,6 @@ export default function RepairHistoryModal({ open, spacecraft, onClose }) {
                     {formatDateTime(r.createdAt)} {r.deliveredAt ? `→ ${formatDateTime(r.deliveredAt)}` : '(en curso)'}
                   </span>
                 </div>
-
                 {r.damages?.length > 0 && (
                   <div className="damage-chip-list">
                     {r.damages.map((d, i) => (
@@ -76,14 +83,9 @@ export default function RepairHistoryModal({ open, spacecraft, onClose }) {
                     ))}
                   </div>
                 )}
-
                 {(r.closedMuseumDates?.length > 0 || r.closedTheaterEvents?.length > 0) && (
                   <p className="repair-record-detail">
-                    {r.closedMuseumDates?.length ?? 0} horario
-                    {(r.closedMuseumDates?.length ?? 0) === 1 ? '' : 's'} de museo cerrado
-                    {(r.closedMuseumDates?.length ?? 0) === 1 ? '' : 's'} · {r.closedTheaterEvents?.length ?? 0}{' '}
-                    función{(r.closedTheaterEvents?.length ?? 0) === 1 ? '' : 'es'} de teatro cerrada
-                    {(r.closedTheaterEvents?.length ?? 0) === 1 ? '' : 's'}
+                    {r.closedMuseumDates?.length ?? 0} horario{(r.closedMuseumDates?.length ?? 0) === 1 ? '' : 's'} de museo cerrado{(r.closedMuseumDates?.length ?? 0) === 1 ? '' : 's'} · {r.closedTheaterEvents?.length ?? 0} función{(r.closedTheaterEvents?.length ?? 0) === 1 ? '' : 'es'} de teatro cerrada{(r.closedTheaterEvents?.length ?? 0) === 1 ? '' : 's'}
                   </p>
                 )}
               </div>

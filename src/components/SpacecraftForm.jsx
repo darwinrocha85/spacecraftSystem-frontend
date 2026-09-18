@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import MuseumScheduleModal from './MuseumScheduleModal'
 import TheaterEventModal from './TheaterEventModal'
 import SendToTallerModal from './SendToTallerModal'
-import { isOperativa, statusLabel } from '../constants/repairStatus'
+import { isOperativa } from '../constants/repairStatus'
 
 const EMPTY_FORM = {
   name: '',
@@ -60,6 +60,7 @@ export default function SpacecraftForm({ open, spacecraft, saving, onSubmit, onC
   const [tallerOpen, setTallerOpen] = useState(false)
   const isEditing = Boolean(spacecraft)
   const operativa = isOperativa(spacecraft?.status)
+  const blocked = isEditing && !operativa
 
   useEffect(() => {
     if (open) {
@@ -116,6 +117,7 @@ export default function SpacecraftForm({ open, spacecraft, saving, onSubmit, onC
               onChange={(e) => update('name', e.target.value)}
               placeholder="Ej. Halcón Milenario"
               autoFocus
+              disabled={blocked}
             />
             {errors.name && <span className="field-error">{errors.name}</span>}
           </label>
@@ -127,6 +129,7 @@ export default function SpacecraftForm({ open, spacecraft, saving, onSubmit, onC
               value={form.franchise}
               onChange={(e) => update('franchise', e.target.value)}
               placeholder="Ej. Star Wars"
+              disabled={blocked}
             />
             {errors.franchise && <span className="field-error">{errors.franchise}</span>}
           </label>
@@ -138,6 +141,7 @@ export default function SpacecraftForm({ open, spacecraft, saving, onSubmit, onC
               value={form.spacecraftType}
               onChange={(e) => update('spacecraftType', e.target.value)}
               placeholder="Ej. Carguero"
+              disabled={blocked}
             />
           </label>
 
@@ -149,6 +153,7 @@ export default function SpacecraftForm({ open, spacecraft, saving, onSubmit, onC
               value={form.crewCapacity}
               onChange={(e) => update('crewCapacity', e.target.value)}
               placeholder="Ej. 6"
+              disabled={blocked}
             />
             {errors.crewCapacity && <span className="field-error">{errors.crewCapacity}</span>}
           </label>
@@ -162,6 +167,7 @@ export default function SpacecraftForm({ open, spacecraft, saving, onSubmit, onC
               value={form.speed}
               onChange={(e) => update('speed', e.target.value)}
               placeholder="Ej. 1050 (en unidades de tu backend)"
+              disabled={blocked}
             />
             {errors.speed && <span className="field-error">{errors.speed}</span>}
           </label>
@@ -174,6 +180,7 @@ export default function SpacecraftForm({ open, spacecraft, saving, onSubmit, onC
               aria-checked={form.isArmed}
               className={`switch ${form.isArmed ? 'switch-on' : ''}`}
               onClick={() => update('isArmed', !form.isArmed)}
+              disabled={blocked}
             >
               <span className="switch-thumb" />
             </button>
@@ -187,6 +194,7 @@ export default function SpacecraftForm({ open, spacecraft, saving, onSubmit, onC
               aria-checked={form.isMuseum}
               className={`switch switch-museum ${form.isMuseum ? 'switch-on' : ''}`}
               onClick={() => update('isMuseum', !form.isMuseum)}
+              disabled={blocked}
             >
               <span className="switch-thumb" />
             </button>
@@ -200,6 +208,7 @@ export default function SpacecraftForm({ open, spacecraft, saving, onSubmit, onC
               aria-checked={form.isTheater}
               className={`switch switch-theater ${form.isTheater ? 'switch-on' : ''}`}
               onClick={() => update('isTheater', !form.isTheater)}
+              disabled={blocked}
             >
               <span className="switch-thumb" />
             </button>
@@ -214,6 +223,7 @@ export default function SpacecraftForm({ open, spacecraft, saving, onSubmit, onC
                 value={form.museumCapacity}
                 onChange={(e) => update('museumCapacity', e.target.value)}
                 placeholder="Ej. 150"
+                disabled={blocked}
               />
               {errors.museumCapacity && <span className="field-error">{errors.museumCapacity}</span>}
             </label>
@@ -223,7 +233,12 @@ export default function SpacecraftForm({ open, spacecraft, saving, onSubmit, onC
             <div className="field schedule-launcher">
               <span>Horario del museo</span>
               {isEditing ? (
-                <button type="button" className="btn btn-ghost btn-schedule" onClick={() => setScheduleOpen(true)}>
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-schedule"
+                  onClick={() => setScheduleOpen(true)}
+                  disabled={blocked}
+                >
                   🗓 Configurar horario
                 </button>
               ) : (
@@ -242,6 +257,7 @@ export default function SpacecraftForm({ open, spacecraft, saving, onSubmit, onC
                 value={form.ticketPrice}
                 onChange={(e) => update('ticketPrice', e.target.value)}
                 placeholder="Ej. 25.00 (si se deja vacío se usa $25.00 por defecto)"
+                disabled={blocked}
               />
               {errors.ticketPrice && <span className="field-error">{errors.ticketPrice}</span>}
             </label>
@@ -255,6 +271,7 @@ export default function SpacecraftForm({ open, spacecraft, saving, onSubmit, onC
                   type="button"
                   className="btn btn-ghost btn-schedule"
                   onClick={() => setTheaterEventsOpen(true)}
+                  disabled={blocked}
                 >
                   🎭 Configurar funciones
                 </button>
@@ -264,18 +281,20 @@ export default function SpacecraftForm({ open, spacecraft, saving, onSubmit, onC
             </div>
           )}
 
-          {isEditing && (
+          {isEditing && operativa && (
             <div className="field schedule-launcher">
               <span>Taller de reparación</span>
-              {operativa ? (
-                <button type="button" className="btn btn-ghost btn-schedule" onClick={() => setTallerOpen(true)}>
-                  🔧 Enviar a taller
-                </button>
-              ) : (
-                <span className={`status-badge status-${(spacecraft.status || 'OPERATIVA').toLowerCase()}`}>
-                  {statusLabel(spacecraft.status)} — se gestiona desde la app de taller
-                </span>
-              )}
+              <button type="button" className="btn btn-ghost btn-schedule" onClick={() => setTallerOpen(true)}>
+                🔧 Enviar a taller
+              </button>
+            </div>
+          )}
+          {blocked && (
+            <div className="field schedule-launcher">
+              <span>Taller de reparación</span>
+              <p className="schedule-hint">
+                Nave en taller — no editable. Haz click en “En taller” en la tabla para ver el estado.
+              </p>
             </div>
           )}
         </div>
@@ -284,8 +303,8 @@ export default function SpacecraftForm({ open, spacecraft, saving, onSubmit, onC
           <button type="button" className="btn btn-ghost" onClick={onCancel} disabled={saving}>
             Cancelar
           </button>
-          <button type="submit" className="btn btn-primary" disabled={saving}>
-            {saving ? 'Guardando…' : isEditing ? 'Guardar cambios' : 'Registrar nave'}
+          <button type="submit" className="btn btn-primary" disabled={saving || blocked}>
+            {blocked ? 'No editable en taller' : saving ? 'Guardando…' : isEditing ? 'Guardar cambios' : 'Registrar nave'}
           </button>
         </div>
       </form>
