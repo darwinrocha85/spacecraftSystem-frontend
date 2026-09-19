@@ -84,13 +84,13 @@ export default function BudgetApprovalModal({ open, repairId, onClose, onDecided
                   <span className="budget-part-name">
                     {item.sparePartName} × {item.quantity}
                   </span>
-                  <span className="budget-part-price">${item.subtotal.toFixed(2)}</span>
+                  <span className="budget-part-price">{item.subtotal.toFixed(2)} €</span>
                 </div>
               ))}
             </div>
 
             <p className="budget-total">
-              Total: <strong>${budget.totalAmount.toFixed(2)}</strong>
+              Total: <strong>{budget.totalAmount.toFixed(2)} €</strong>
             </p>
 
             {isPending ? (

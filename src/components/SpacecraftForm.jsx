@@ -256,7 +256,7 @@ export default function SpacecraftForm({ open, spacecraft, saving, onSubmit, onC
                 step="0.01"
                 value={form.ticketPrice}
                 onChange={(e) => update('ticketPrice', e.target.value)}
-                placeholder="Ej. 25.00 (si se deja vacío se usa $25.00 por defecto)"
+                placeholder="Ej. 25.00 (si se deja vacío se usa 25.00 € por defecto)"
                 disabled={blocked}
               />
               {errors.ticketPrice && <span className="field-error">{errors.ticketPrice}</span>}

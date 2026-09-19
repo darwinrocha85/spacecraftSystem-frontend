@@ -13,6 +13,7 @@ import RepairHistoryModal from './components/RepairHistoryModal'
 import WorkshopStatusModal from './components/WorkshopStatusModal'
 import DashboardOverview from './components/DashboardOverview'
 import SpacecraftDashboardModal from './components/SpacecraftDashboardModal'
+import AdminAssistantWidget from './components/AdminAssistantWidget'
 import useSpacecrafts from './hooks/useSpacecrafts'
 
 export default function App() {
@@ -209,6 +210,8 @@ export default function App() {
         spacecraft={dashboardTarget}
         onClose={() => setDashboardTarget(null)}
       />
+
+      <AdminAssistantWidget />
     </div>
   )
 }

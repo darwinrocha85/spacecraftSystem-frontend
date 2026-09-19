@@ -4,9 +4,20 @@
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {
+        "source": "/api/mcp",
+        "function": "mcp"
+      },
+      {
+        "source": "/api/ask-admin",
+        "function": "askAdmin"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }
     ]
+  },
+  "functions": {
+    "source": "functions"
   }
 }

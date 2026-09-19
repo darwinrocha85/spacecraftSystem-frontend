@@ -1462,3 +1462,207 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* Asistente del panel admin (AdminAssistantWidget) — consulta datos en vivo de naveSpace
+   vía la Cloud Function askAdmin. Mismo patrón burbuja+panel que el widget del portfolio,
+   con la paleta de este panel. z-index por debajo de .modal-overlay (10) a propósito: si
+   se abre un modal, éste debe quedar por encima del widget, no al revés. */
+.assistant-bubble {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 9;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 20px;
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+  color: #05060f;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 12px 30px rgba(124, 58, 237, 0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.assistant-bubble:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px rgba(124, 58, 237, 0.45);
+}
+
+.assistant-bubble.open {
+  background: var(--bg-panel-alt);
+  color: var(--text-primary);
+  font-size: 22px;
+  padding: 10px 16px;
+}
+
+.assistant-panel {
+  position: fixed;
+  right: 24px;
+  bottom: 90px;
+  z-index: 9;
+  width: min(360px, calc(100vw - 32px));
+  max-height: min(520px, calc(100vh - 140px));
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 24px 60px rgba(2, 2, 8, 0.55);
+  overflow: hidden;
+}
+
+.assistant-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-soft);
+  background: var(--bg-panel-alt);
+}
+
+.assistant-header strong {
+  font-family: var(--font-display);
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  color: var(--text-primary);
+}
+
+.assistant-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+}
+
+.assistant-close:hover {
+  color: var(--text-primary);
+  background: rgba(140, 160, 255, 0.12);
+}
+
+.assistant-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.assistant-msg {
+  max-width: 88%;
+  padding: 9px 12px;
+  border-radius: var(--radius-md);
+  font-size: 13.5px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+.assistant-msg.assistant {
+  align-self: flex-start;
+  background: var(--bg-panel-alt);
+  border: 1px solid var(--border-soft);
+  color: var(--text-primary);
+}
+
+.assistant-msg.user {
+  align-self: flex-end;
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+  color: #05060f;
+  font-weight: 500;
+}
+
+.assistant-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 16px 10px;
+}
+
+.assistant-suggestions button {
+  border: 1px solid var(--border-soft);
+  background: var(--bg-panel-alt);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.assistant-suggestions button:hover:not(:disabled) {
+  color: var(--text-primary);
+  border-color: var(--accent-cyan);
+}
+
+.assistant-suggestions button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.assistant-input-row {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.assistant-input-row input {
+  flex: 1;
+  background: var(--bg-panel-alt);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 13.5px;
+}
+
+.assistant-input-row input:focus {
+  outline: none;
+  border-color: var(--accent-cyan);
+}
+
+.assistant-input-row button {
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 9px 16px;
+  background: var(--accent-purple);
+  color: #05060f;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.assistant-input-row button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.assistant-hint {
+  margin: 0;
+  padding: 0 16px 12px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+@media (max-width: 480px) {
+  .assistant-panel {
+    right: 16px;
+    left: 16px;
+    width: auto;
+  }
+
+  .assistant-bubble {
+    right: 16px;
+    bottom: 16px;
+  }
+}
