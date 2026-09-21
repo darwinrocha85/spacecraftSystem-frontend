@@ -28,6 +28,13 @@ const DEFAULT_CLAUDE_MODEL = "claude-haiku-4-5-20251001";
  * Qué proveedor usar. AI_PROVIDER se lee una vez por invocación de la Cloud Function (no hay
  * caché entre requests en Cloud Functions Gen 2 salvo que la instancia se reuse, y aunque se
  * reuse esto es tan barato que da igual releerlo siempre).
+ *
+ * Ahorro de tokens (2026-09-21): el prefijo estático de cada request (system prompt + catálogo
+ * de tools, idéntico en cada llamada) va marcado con breakpoints de prompt caching en Claude
+ * (`cache_control`, ver runClaude) — cada follow-up paga ese prefijo como cache read en vez de
+ * input completo. En Gemini el mismo prefijo estable queda cubierto por el caché implícito de
+ * la API cuando el modelo lo soporta (este SDK no expone caché explícito, por eso ahí no hay
+ * código extra: el orden estable de system+tools ya es lo que permite reusar).
  */
 export function resolveProvider() {
   const raw = (process.env.AI_PROVIDER || "gemini").trim().toLowerCase();
@@ -44,10 +51,29 @@ async function runToolCall(tools, name, args) {
   const tool = tools.find((t) => t.name === name);
   if (!tool) return { error: `Herramienta desconocida: ${name}` };
   try {
-    return { result: await tool.handler(args || {}) };
+    const data = await tool.handler(args || {});
+    return truncateToolResult(data);
   } catch (err) {
     return { error: err.message };
   }
+}
+
+// Poda de resultados (2026-09-21): las listas (naves, tickets, ventas) pueden ser largas y
+// cada ronda del loop las reenvía íntegras al modelo. Se recorta a un tope con aviso — el
+// modelo puede pedir el ítem puntual por ID/nombre con la herramienta de detalle si lo
+// necesita, que sale más barato que reenviar la lista entera en cada vuelta.
+const MAX_TOOL_RESULT_CHARS = 6000;
+
+function truncateToolResult(data) {
+  const text = JSON.stringify(data);
+  if (text.length <= MAX_TOOL_RESULT_CHARS) return data;
+  return {
+    truncated: true,
+    note:
+      "Resultado recortado a los primeros ~6000 caracteres para acotar costo. Si necesitás " +
+      "un ítem puntual de la lista, pedilo por ID o nombre con la herramienta de detalle.",
+    preview: text.slice(0, MAX_TOOL_RESULT_CHARS),
+  };
 }
 
 async function runGemini({ apiKey, model, systemPrompt, tools, history, question, maxRounds, temperature, maxOutputTokens }) {
@@ -66,6 +92,9 @@ async function runGemini({ apiKey, model, systemPrompt, tools, history, question
     systemInstruction: systemPrompt,
     tools: toolsForGemini,
   });
+  // Nota de costo: system + tools van siempre en el mismo orden y con el mismo contenido,
+  // así que el prefijo estático es reusable por el caché implícito de la API. Este SDK
+  // (@google/generative-ai) no expone caché explícito — no hay nada más que hacer acá.
 
   // No usamos ChatSession/sendMessage() a propósito: el helper del SDK arma el turno de
   // respuesta de una function-call con `role: "function"`, rol que la API detrás de Gemini
@@ -100,16 +129,27 @@ async function runGemini({ apiKey, model, systemPrompt, tools, history, question
   }
 
   const text = (response.text() || "").trim();
-  return { answer: text || "No pude obtener esa información ahora mismo." };
+  return {
+    answer: text || "No pude obtener esa información ahora mismo.",
+    usage: response.usageMetadata || undefined,
+  };
 }
 
 async function runClaude({ apiKey, model, systemPrompt, tools, history, question, maxRounds, temperature, maxOutputTokens }) {
   const anthropic = new Anthropic({ apiKey });
-  const claudeTools = tools.map((t) => ({
-    name: t.name,
-    description: t.description,
-    input_schema: t.geminiParameters,
-  }));
+  // Prompt caching: system + catálogo de tools son idénticos en cada request, así que van
+  // con breakpoint de caché (máx 4 por request, acá usamos 2). Historial y pregunta quedan
+  // fuera del caché porque cambian siempre. El `usage` se devuelve para poder verificar
+  // cache hits en los logs (cache_read_input_tokens vs input_tokens).
+  const claudeTools = tools.map((t, i) => {
+    const tool = {
+      name: t.name,
+      description: t.description,
+      input_schema: t.geminiParameters,
+    };
+    if (i === tools.length - 1) tool.cache_control = { type: "ephemeral" };
+    return tool;
+  });
 
   // Los roles neutrales ("user"/"assistant") ya coinciden con los de la Messages API de
   // Claude — a diferencia de Gemini, acá no hace falta mapear nada.
@@ -123,7 +163,7 @@ async function runClaude({ apiKey, model, systemPrompt, tools, history, question
   while (true) {
     response = await anthropic.messages.create({
       model,
-      system: systemPrompt,
+      system: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
       max_tokens: maxOutputTokens,
       temperature,
       tools: claudeTools,
@@ -157,7 +197,10 @@ async function runClaude({ apiKey, model, systemPrompt, tools, history, question
     .join("\n")
     .trim();
 
-  return { answer: text || "No pude obtener esa información ahora mismo." };
+  return {
+    answer: text || "No pude obtener esa información ahora mismo.",
+    usage: response.usage || undefined,
+  };
 }
 
 /**

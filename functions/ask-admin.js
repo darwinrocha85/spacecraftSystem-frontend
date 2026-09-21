@@ -30,7 +30,7 @@ const SYSTEM_PROMPT = `Eres el asistente interno del panel de administración de
 
 Reglas para CONSULTAS (leer datos):
 - Para cualquier pregunta sobre datos operativos (ingresos, ocupación, naves, entradas, funciones, reparaciones, presupuestos), llamá a la herramienta correspondiente y basá tu respuesta SOLO en lo que te devuelve. No inventes números, IDs ni completes huecos con suposiciones — si necesitás el ID de una nave/función/reparación/presupuesto y no lo tenés, buscalo primero con la herramienta de lectura que corresponda (por nombre o por contexto).
-- Esto vale también cuando el dato ya salió antes en esta misma charla: NO lo repitas de memoria a partir de tu propia respuesta anterior (el historial que ves es tu propio texto de antes, no una fuente confiable) — volvé a llamar a la herramienta de lectura correspondiente en este turno y contestá con ese resultado fresco. Esto es especialmente importante al listar naves/funciones/reparaciones: nunca completes ni corrijas esa lista de memoria.
+- Esto vale también cuando el dato ya salió antes en esta misma charla: si lo trajiste vos con una herramienta en esta conversación, reutilizalo sin volver a llamar — salvo que el usuario pida el estado actual/fresco, que sea disponibilidad, ventas o saldos (cambian rápido), o que lo necesites como ID para una acción de escritura (ahí re-verificalo con la herramienta antes de ejecutar). No completes ni corrijas listas de memoria: si no lo trajiste en esta charla, buscalo.
 
 Reglas para ACCIONES que modifican datos (crear, editar, borrar, enviar a taller, etc.):
 - Antes de ejecutar una acción, fijate si es una de las que tiene ADVERTENCIA (ver lista abajo). Si no la tiene, ejecutá directo y confirmá el resultado en una frase clara — no hace falta pedir permiso para crear una nave, editarla, cargar un horario, crear/editar una función de teatro, marcar una nave como retirada del taller, rechazar un presupuesto o cerrar el lado del taller de una reparación.
@@ -54,8 +54,10 @@ const MAX_HISTORY_TURNS = 6;
 
 // Tope de vueltas de function-calling por pregunta — red de seguridad ante un loop
 // inesperado del modelo (pedir la misma tool una y otra vez); en la práctica casi ninguna
-// pregunta necesita más de 1-2 llamadas.
-const MAX_FUNCTION_CALL_ROUNDS = 4;
+// pregunta necesita más de 1-2 llamadas. Bajado de 4 a 3 (2026-09-21): con la regla de
+// reutilizar datos ya traídos en la charla, 3 vueltas sobran y cada vuelta ahorrada evita
+// reenviar system + catálogo + resultados de nuevo.
+const MAX_FUNCTION_CALL_ROUNDS = 3;
 
 const corsHandler = cors({ origin: true });
 

@@ -25,7 +25,7 @@ const SYSTEM_PROMPT = `Sos el asistente interno del taller de reparación de nav
 
 Reglas:
 - Para cualquier consulta, llamá a la herramienta correspondiente y basá tu respuesta SOLO en lo que te devuelve. No inventes IDs, estados ni montos.
-- Esto vale también cuando el dato ya salió antes en esta misma charla: NO lo repitas de memoria a partir de tu propia respuesta anterior (el historial que ves es tu propio texto de antes, no una fuente confiable) — volvé a llamar a la herramienta de lectura correspondiente en este turno y contestá con ese resultado fresco. Esto es especialmente importante al listar naves/reparaciones/repuestos: nunca completes ni corrijas esa lista de memoria.
+- Esto vale también cuando el dato ya salió antes en esta misma charla: si lo trajiste vos con una herramienta en esta conversación, reutilizalo sin volver a llamar — salvo que el usuario pida el estado actual/fresco o que lo necesites como ID para avanzar un estado o armar un presupuesto (ahí re-verificalo). Si no lo trajiste en esta charla, buscalo: nunca completes ni corrijas listas de memoria.
 - Si necesitás el ID de una reparación o de un repuesto y no lo tenés, buscalo primero con la herramienta de lectura que corresponda (get_shop_repairs, get_repairs_for_spacecraft, list_spare_parts) — nunca lo adivines.
 - Ninguna acción de este catálogo es destructiva ni tiene impacto fuera de la propia reparación o repuesto (desactivar un repuesto es reversible reactivándolo) — ejecutá directo, sin pedir confirmación previa, y confirmá el resultado en una frase clara.
 - Antes de armar un presupuesto (create_budget), consultá list_spare_parts para conocer los repuestos disponibles, sus IDs y precios. Si el usuario pide el total, calculalo vos (precio × cantidad de cada línea, sumado).
@@ -39,8 +39,9 @@ Reglas:
 - La moneda del demo es EUROS. Los precios que te devuelven las herramientas son números sin símbolo — presentalos siempre como euros (p. ej. "45 €" o "45 euros"), nunca en dólares ($) ni como "unidades monetarias".`;
 
 // Mismos topes que ask-admin.js, mismo criterio (acotar costo por request).
+// Bajado de 4 a 3 (2026-09-21): ver comentario en ask-admin.js.
 const MAX_HISTORY_TURNS = 6;
-const MAX_FUNCTION_CALL_ROUNDS = 4;
+const MAX_FUNCTION_CALL_ROUNDS = 3;
 
 const corsHandler = cors({ origin: true });
 
